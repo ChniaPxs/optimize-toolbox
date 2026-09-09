@@ -1,0 +1,30 @@
+# 构建产物
+build/
+dist/
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# 运行时数据
+data/
+logs/
+*.db
+
+# 备份与打包
+*.zip
+优化工具箱_全版本备份_20260909.zip
+
+# 系统/临时
+nul
+Thumbs.db
+Desktop.ini
+*.log
+
+# ADB 二进制（自行下载 Google Platform Tools 放入）
+tools/platform-tools/
+
+# IDE
+.vscode/
+.idea/
