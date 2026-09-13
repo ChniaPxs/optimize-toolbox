@@ -29,3 +29,8 @@ tools/platform-tools/
 # IDE
 .vscode/
 .idea/
+
+# 隐私与文档产物
+*.docx
+*.reg
+_*.py
