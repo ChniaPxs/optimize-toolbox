@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import subprocess, threading, time, re, ctypes
 from config import ADB_EXE, ADB_TIMEOUT, ADB_RETRIES, log
+from utils.adb_helper import ADB_LOCK  # v6.32: 与清理/监控共用 ADB 命令锁，防并发断连
 
 
 def _is_admin():
@@ -129,11 +130,13 @@ class NetworkOptimizer:
         log.ok("网络监控已停止")
 
     def _r(self, cmd, t=10):
-        try:
-            r = subprocess.run(cmd, capture_output=True, text=True, timeout=t, encoding="utf-8", errors="replace")
-            return r.stdout.strip(), r.stderr.strip(), r.returncode
-        except subprocess.TimeoutExpired: return "", "timeout", 1
-        except Exception as e: return "", str(e), 1
+        # v6.32: 与清理/监控共用 ADB 命令锁，防止并发打 adb 导致手机断连
+        with ADB_LOCK:
+            try:
+                r = subprocess.run(cmd, capture_output=True, text=True, timeout=t, encoding="utf-8", errors="replace")
+                return r.stdout.strip(), r.stderr.strip(), r.returncode
+            except subprocess.TimeoutExpired: return "", "timeout", 1
+            except Exception as e: return "", str(e), 1
 
     def _ra(self, args, retries=ADB_RETRIES):
         if not ADB_EXE: return "", "no adb", 1

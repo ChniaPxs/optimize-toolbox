@@ -35,6 +35,7 @@ class CleanupPage(BasePage):
         self._targets = {}
         self._scanning = False
         self._cleaning = False
+        self._phone_scan_err = ""
         self._status_item = None
         self._draw()
 
@@ -102,13 +103,17 @@ class CleanupPage(BasePage):
 
         def _do_scan():
             phone_n = 0
+            self._phone_scan_err = ""
             try:
                 targets = list(self.cleaner.scan_for_junk()) if self.cleaner else []
                 if self.adb:
                     try:
                         phone = self.adb.scan_junk() or []
-                    except Exception:
+                        if not phone:
+                            self._phone_scan_err = getattr(self.adb, "_last_err", "")
+                    except Exception as e:
                         phone = []
+                        self._phone_scan_err = str(e)[:60]
                     for path, sz, desc in phone:
                         targets.append(_PhoneJunk(path, sz, desc))
                     phone_n = len(phone)
@@ -138,7 +143,11 @@ class CleanupPage(BasePage):
                 len(targets), phone_n, self._fmt_size(total_size))
         else:
             msg = "✓ 发现 %d 项，共 %s" % (len(targets), self._fmt_size(total_size))
-        self._set_status(msg)
+        if getattr(self, "_phone_scan_err", ""):
+            msg += "（手机扫描失败：" + self._phone_scan_err + "）"
+            self._set_status(msg, ORANGE)
+        else:
+            self._set_status(msg)
         if self._app and hasattr(self._app, '_res_log'):
             self._app._res_log(msg)
         if self._app and hasattr(self._app, '_term_log'):

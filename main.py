@@ -621,7 +621,7 @@ class OptimizeApp:
         self._paint_right()
         return "break"
 
-    BUILD_TS = "2026-09-13 10:17"  # 构建时间戳（About 页显示，用于区分新旧版本）
+    BUILD_TS = "2026-09-17 15:30"  # 构建时间戳（About 页显示，用于区分新旧版本）
 
     # ================= 终端命令（覆盖全部功能，可随时调用） =================
     def _execute_command(self, cmd):
